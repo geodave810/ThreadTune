@@ -21,4 +21,4 @@ Click on the program & you should see a thread icon in the ADD-INS panel.  To ru
 The most commone use of this program for me anyway is to have a different diameter for the Male threads & the female threads in order to get a good tolerance in 3D prints.  For example, using 6mm diameter threads with a pitch of 1 & angle of 30, then a 5.5mm diameter threads with same parameters you will get a tolerance of 0.25mm all the way around the threads.<br>
 ![ThreadTune Dialogbox](ThreadTuneDialog.JPG)<br>
 Using the Helex guide rail instead of the vertical centerline will require less points for the spline points to be accurate.  18 - 36 spline points is usually sufficent with the Helix guiderail, but you will need at least 36-45 spline points when using the vertical centerline for it to be accurate.  Using a different angle for the top & bottom of the thread you will need to use the vertical centerline for it to work.  The exception here is using 0 for the top and/or bottom angle either type of guide rail will work.<br>
-![ThreadTune Types](Thread_Types_240x240.jpg)<br>
+![ThreadTune Types](Thread_Types_800x600.jpg)<br>
