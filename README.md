@@ -14,7 +14,7 @@ How this works is that it draws a profile of the thread.  Then it draws a helix 
 This program is setup as an Add-In in Autodesk Fusion 360.  To install this, copy the file structure to:
 C:\Users\<UserName>\AppData\Roaming\Autodesk\Autodesk Fusion 360\API\AddIns
 After you copied the files, your folder structure should look like this.
-<file folder image>
+![ThreadTune Folder](./resources/Picture.jpg)ThreadTuneFolder.JPG
 To run the program, click on Utilites, then ADD-INS, then Add-Ins tab.  You should see the program ThreadTune in the list under **My Add-Ins**
 Click on the program & you should see a thread icon in the ADD-INS panel.  To run the program, just click on that thread icon.
 
