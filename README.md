@@ -18,7 +18,9 @@ After you copied the files, your folder structure should look like this.<br>
 To run the program, click on Utilites, then ADD-INS, then Add-Ins tab.  You should see the program ThreadTune in the list under **My Add-Ins**
 Click on the program & you should see a thread icon in the ADD-INS panel.  To run the program, just click on that thread icon.
 
-The most commone use of this program for me anyway is to have a different diameter for the Male threads & the female threads in order to get a good tolerance in 3D prints.  For example, using 6mm diameter threads with a pitch of 1 & angle of 30, then a 5.5mm diameter threads with same parameters you will get a tolerance of 0.25mm all the way around the threads.<br>
+The most commone use of this program for me anyway is to have a different diameter for the Male threads & the Female threads in order to get a good tolerance in 3D prints.  For example, using 6mm diameter threads with a pitch of 1 & angle of 30, then a 5.5mm diameter threads with same parameters you will get a tolerance of 0.25mm all the way around the vertical part of the threads, but a little less around the angled part of the threads.<br>
 ![ThreadTune Dialogbox](ThreadTuneDialog.JPG)<br>
 Using the Helex guide rail instead of the vertical centerline will require less points for the spline points to be accurate.  18 - 36 spline points is usually sufficent with the Helix guiderail, but you will need at least 36-45 spline points when using the vertical centerline for it to be accurate.  Using a different angle for the top & bottom of the thread you will need to use the vertical centerline for it to work.  The exception here is using 0 for the top and/or bottom angle either type of guide rail will work.<br>
 ![ThreadTune Types](Thread_Types_800x600.jpg)<br>
+
+This program draws the thread at 0,0,0 and only draws the threads.  I draw the inner circle for the threads, but it is not extruded.  I was not able to get that to work just yet.
