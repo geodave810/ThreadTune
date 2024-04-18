@@ -139,7 +139,7 @@ def DrawThreads(dia_exp, pitch_exp, height_exp, angleTop, angleBot, splinePts, G
         sketchLines.addByTwoPoints(P3,P4)
         sketchLines.addByTwoPoints(P4,P1)
 
-        rev = Ht * Pitch
+        rev = Ht / Pitch
         turns = rev * 2.0 * math.pi
         segs = splinePts * rev                     #18 is a good number to use for turns
         inc = turns / segs
