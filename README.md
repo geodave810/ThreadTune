@@ -24,3 +24,5 @@ Using the Helex guide rail instead of the vertical centerline will require less 
 ![ThreadTune Types](Thread_Types_800x600.jpg)<br>
 
 This program draws the thread at 0,0,0 and only draws the threads.  I draw the inner circle for the threads, but it is not extruded.  I was not able to get that to work just yet.
+
+I have hardcoded this to use mm units.  This can be fixed, but for now that is the way it is.  It is interesting that AutoCAD which was probably Autodesk's original product uses mm is the default metric units (at least it did when I was using it), but yet they use cm for Fusion 360.
