@@ -9,7 +9,7 @@ https://forum.v1e.com/t/drawing-more-flexible-screw-threads-in-fusion-360/43352
 
 You can create threads with most any angle as well as using different angles for the top thread & bottom thread.  If your combined top & bottom angle are too large, the code will fail.  using a 30 & 60 will work, but using a 60 & 60 will fail.  If you set either or both angles to 0, it will give you a flat thread on the top, bottom or both.  You can also enter a negative number for the thread angle which will invert the thread.  I did see a YouTube video where the inverted style was actually used.  You can also do a Right or Left hand thread.
 
-How this works is that it draws a profile of the thread.  Then it draws a helix for the path of that thread profile following the inside edge of that profile & either another helix along the outside radius of that profile for the guide rail or a vertical Centerline.  The more spline points you use the more accurate the thread will be for the full length of the thread.  Interestingly enough, I can use 18 spline points with the outside helix as the guide rail & get about the same accuracy using 45 spline points with the vertical centerline guide rail.  I have the default currently set to Centerline Guide rail & 36 spline points.  Another gotcha, is if you use a different angle for the top & bottom other than 0, it will fail when using the outside helix for the guide rail.
+How this works is that it draws a profile of the thread.  Then it draws a helix for the path of that thread profile following the inside edge of that profile & either another helix along the outside radius of that profile for the guide rail or a vertical Centerline.  The more spline points you use the more accurate the thread will be for the full length of the thread.  Interestingly enough, I can use 18 spline points with the outside helix as the guide rail & get about the same accuracy using 45 spline points with the vertical centerline guide rail.  I have the default currently set to Centerline Guide rail & 36 spline points.  
 
 This program is setup as an Add-In in Autodesk Fusion 360.  To install this, copy the file structure to:
 C:\Users\<UserName>\AppData\Roaming\Autodesk\Autodesk Fusion 360\API\AddIns
@@ -26,3 +26,9 @@ Using the Helex guide rail instead of the vertical centerline will require less 
 This program draws the thread at 0,0,0 and only draws the threads.  A cylinder is drawn with inner radius of threads & the threads are cut flush with the top & bottom of the cylinder.  There is a file **DialogInput.txt** that saves your current dialog input parameters to set as the defaults for the next time you use the program.  This file is saved in the same folder as the running program.
 
 I have hardcoded this to use mm units.  This can be fixed, but for now that is the way it is.  It is interesting that AutoCAD which was probably Autodesk's original product uses mm is the default metric units (at least it did when I was using it), but yet they use cm for Fusion 360.
+
+I will add the little caveats of this program as I come across them.
+
+1. If you use a different angle for the top & bottom other than 0, it will fail when using the outside helix for the guide rail.
+
+2. When creating the thread bodies, I do a join of the sweep of the thread profile & the inner cylinder.  If you have another body located where it joins it will join that one also.  I have not found a solution to that yet.
