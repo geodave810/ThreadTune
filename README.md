@@ -25,10 +25,12 @@ Using the Helex guide rail instead of the vertical centerline will require less 
 
 This program draws the thread at 0,0,0 and only draws the threads.  A cylinder is drawn with inner radius of threads & the threads are cut flush with the top & bottom of the cylinder.  There is a file **DialogInput.txt** that saves your current dialog input parameters to set as the defaults for the next time you use the program.  This file is saved in the same folder as the running program.
 
-I have hardcoded this to use mm units.  This can be fixed, but for now that is the way it is.  It is interesting that AutoCAD which was probably Autodesk's original product uses mm is the default metric units (at least it did when I was using it), but yet they use cm for Fusion 360.
-
 I will add the little caveats of this program as I come across them.
 
-1. If you use a different angle for the top & bottom other than 0, it will fail when using the outside helix for the guide rail.
+1. This currently only works with mm units.  This will probably be fixed later, but I want to work out some of the other features & problems first.
+   
+2. If you use a different angle for the top & bottom other than 0, it will fail when using the outside helix for the guide rail.
 
-2. When creating the thread bodies, I do a join of the sweep of the thread profile & the inner cylinder.  If you have another body located where it joins it will join that one also.  I have not found a solution to that yet.
+3. When creating the thread bodies, I do a join of the sweep of the thread profile & the inner cylinder.  If you have another body located where it joins it will join that one also.  I have not found a solution to that yet.
+
+4. You can bog the program down if your sweep of the threads is too long or has a lot of points for the spline helix.
