@@ -19,7 +19,11 @@ To run the program, click on Utilites, then ADD-INS, then Add-Ins tab.  You shou
 Click on the program & you should see a thread icon in the ADD-INS panel.  To run the program, just click on that thread icon.
 
 The most commone use of this program for me anyway is to have a different diameter for the Male threads & the Female threads in order to get a good tolerance in 3D prints.  For example, using 6mm diameter threads with a pitch of 1 & angle of 30, then a 5.5mm diameter threads with same parameters you will get a tolerance of 0.25mm all the way around the vertical part of the threads, but a little less around the angled part of the threads.<br>
-![ThreadTune Dialogbox](ThreadTuneDialog.JPG)<br>
+![ThreadTune_Tab1](https://github.com/geodave810/ThreadTune/assets/13069472/caaa3157-b940-4149-90e9-a011b02d3a3a)
+![ThreadTune_Tab2](https://github.com/geodave810/ThreadTune/assets/13069472/d4f14043-6bba-48dd-b375-2d06f5d10de1)
+<br>
+![ThreadTune_TestRun](https://github.com/geodave810/ThreadTune/assets/13069472/6a040e58-719a-4e71-a5fc-98cc1f1fb05e)
+
 Using the Helex guide rail instead of the vertical centerline will require less points for the spline points to be accurate.  18 - 36 spline points is usually sufficent with the Helix guiderail, but you will need at least 36-45 spline points when using the vertical centerline for it to be accurate.  Using a different angle for the top & bottom of the thread you will need to use the vertical centerline for it to work.  The exception here is using 0 for the top and/or bottom angle either type of guide rail will work.  If there was a helix you could draw in sketch mode for fusion 360 which there does not seem to be at the moment, the curvature would probably be quite accurate.  AutoCAD seems to have the ability to draw a helix, so maybe it will be added one day.<br>
 ![ThreadTune Types](Thread_Types_800x600.jpg)<br>
 
