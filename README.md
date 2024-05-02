@@ -38,3 +38,5 @@ I will add the little caveats of this program as I come across them.
 3. When creating the thread bodies, I do a join of the sweep of the thread profile & the inner cylinder.  If you have another body located where it joins it will join that one also.  I have not found a solution to that yet.
 
 4. You can bog the program down if your sweep of the threads is too long or has a lot of points for the spline helix.
+
+5. This will probably work better in a new design for now as I have not tested this much.
