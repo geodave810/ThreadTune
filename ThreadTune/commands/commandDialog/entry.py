@@ -1,3 +1,6 @@
+# 4//9/2024    By: David Bunch
+# Fine-Tune your Screw Thread Designs in Autodesk Fusion 360
+
 import adsk.core, adsk.fusion, traceback
 import math
 import os
@@ -6,13 +9,10 @@ import time
 
 from ...lib import fusion360utils as futil
 from ... import config
-#import DrawThreads
 app = adsk.core.Application.get()
 design = app.activeProduct
 rootComp = design.rootComponent
 ui = app.userInterface
-
-
 
 # TODO *** Specify the command identity information. ***
 CMD_ID = f'{config.COMPANY_NAME}_{config.ADDIN_NAME}_cmdDialog'
@@ -41,7 +41,7 @@ rootComp = design.rootComponent
 ui = app.userInterface
 ##########################################################################
 def draw_regular_polygon(sketch, num_sides, rad):
-    # Calculate the coordinates of the polygon's vertices
+# Calculate the coordinates of the polygon's vertices
     angle_offset = math.pi / num_sides
     vertices = []
     for i in range(num_sides):
@@ -50,7 +50,7 @@ def draw_regular_polygon(sketch, num_sides, rad):
         y = rad * math.sin(angle)
         vertices.append(adsk.core.Point3D.create(x, y, 0))
 
-    # Draw lines connecting the vertices
+# Draw lines connecting the vertices
     lines = []
     for i in range(num_sides):
         start_point = vertices[i]
@@ -60,15 +60,10 @@ def draw_regular_polygon(sketch, num_sides, rad):
     return lines
 ##########################################################################
 def create_offset_plane_from_xy(construction_plane, offset_distance):
-    app = adsk.core.Application.get()
-    design = app.activeProduct
-    rootComp = design.rootComponent
 # Get the construction planes collection.
     planes = design.rootComponent.constructionPlanes
-
 # Get the XY construction plane.
     xy_plane = rootComp.xYConstructionPlane
-
 # Create an offset plane from the XY construction plane.
     offset_plane_input = planes.createInput()
     offset_plane_input.setByOffset(xy_plane, adsk.core.ValueInput.createByReal(offset_distance))
@@ -77,9 +72,6 @@ def create_offset_plane_from_xy(construction_plane, offset_distance):
     return offset_plane
 ##########################################################################
 def create_circle_sketch_on_plane(plane, radius):
-    app = adsk.core.Application.get()
-    design = app.activeProduct
-
 # Get the sketches collection of the root component.
     sketches = design.rootComponent.sketches
 
@@ -92,116 +84,7 @@ def create_circle_sketch_on_plane(plane, radius):
 
     return sketch
 ##########################################################################
-def DrawCylinder(R_Min, Ht1, iflag):
-    # Draw a circle.
-    circles = sketch_Helix.sketchCurves.sketchCircles
-    circle1 = circles.addByCenterRadius(adsk.core.Point3D.create(0, 0, 0), R_Min)
-    circle2 = circles.addByCenterRadius(adsk.core.Point3D.create(0, 0, 0), Rad1+.01)
-
-    # Get the profile defined by the circle.
-    profCir = sketch_Helix.profiles.item(0)
-    profCir1 = sketch_Helix.profiles.item(1)
-
-    # Define that the extent is a distance extent of 5mm
-    # Hardcoded for now until we can get this to work with number we input
-    Ht2 = adsk.core.ValueInput.createByReal(Ht1)
-    extrudes = rootComp.features.extrudeFeatures
-    if iflag == 0:
-        ext = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.JoinFeatureOperation)
-#Cut the threads that are below origin
-        Ht3 = adsk.core.ValueInput.createByReal(-YB_B - 0.001)
-        ext1 = extrudes.addSimple(profCir1, Ht3, adsk.fusion.FeatureOperations.CutFeatureOperation)
-        ext2 = extrudes.addSimple(profCir, Ht3, adsk.fusion.FeatureOperations.CutFeatureOperation)
-# Get the XY construction plane.
-        xy_plane = create_offset_plane_from_xy
-# Create the offset plane.
-        Ht4 = float(Ht1)
-        Ht5 = adsk.core.ValueInput.createByReal(YB_T + 0.001)
-        offset_plane = create_offset_plane_from_xy(xy_plane,Ht4)
-# Create sketch on the offset plane and draw a circle.
-        sketchTop = create_circle_sketch_on_plane(offset_plane, Rad1+.01)
-        profCir2 = sketchTop.profiles.item(0)
-        ext3 = extrudes.addSimple(profCir2, Ht5, adsk.fusion.FeatureOperations.CutFeatureOperation)
-    else:
-        ext = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.CutFeatureOperation)
-
-def DrawHelix(Rad, Pitch, Ht, Ht1, sPts, G_Rail, RL_thread, iflag):
-# Top Point for Center Vertical Line
-        P10 = adsk.core.Point3D.create(0,0,Ht1 + .1)
-        rev = Ht / Pitch
-        turns = rev * 2.0 * math.pi
-        segs = sPts * rev                     #18 is a good number to use for turns
-        inc = turns / segs
-
-# Create an object collection for the points.
-        sketchSplines = sketch_Helix.sketchCurves.sketchFittedSplines
-        sketchCenter = sketch_Helix.sketchCurves.sketchLines
-
-        Vert_Line = sketchCenter.addByTwoPoints(P0,P10)       #Draw Center Vertical for Guide Rail with Sweeep
-
-        points = adsk.core.ObjectCollection.create()
-        points1  = adsk.core.ObjectCollection.create()
-        ang = 0.0
-        ang1 = 0.0
-        global Rad1
-        Rad1 = Rad * .1
-        inc1 = inc
-        Icount = 0
-        Icount1 = 0
-        if RL_thread == 'L':
-            inc1 = inc * -1                      #this will change direction of helix to CW for Left hand threads
-# Plot the points for the Helix
-        while (ang <= turns):
-            Icount = Icount + 1
-            x = R_Min1 * math.cos(ang1)          # Helix point along inside Radius minus .1mm to fill any gap
-            y = R_Min1 * math.sin(ang1)
-            z = (Ht1 * (ang / turns))
-# this should speed it up a little if we are not doing an outer guide rail helix
-            if G_Rail != 'C':
-                Icount1 = Icount1 + 1
-                x1 = Rad1 * math.cos(ang1)           # Helix points along outside radius of thread
-                y1 = Rad1 * math.sin(ang1)
-                z1 = (Ht1 * (ang / turns))
-                points1.add(adsk.core.Point3D.create(x1, y1, z1))     #Need 2nd spline for guide rail
-            points.add(adsk.core.Point3D.create(x, y, z))
-
-            ang = ang + inc
-            ang1 = ang1 + inc1
-# Create a 3D spline through the points.
-        #msg = f'Ht: {Ht}<br>rev: {rev}<br>turns: {turns}<br>segs: {segs}<br>inc: {inc}<br>splinePts: {splinePts}<br>Icount: {Icount}<br>Icount1: {Icount1}'
-        #ui.messageBox(msg)
-        spline = sketchSplines.add(points)
-        if G_Rail != 'C':
-            spline1 = sketchSplines.add(points1)
-            guide = rootComp.features.createPath(spline1)
-# Get the profile defined by thread.
-        prof = sketch_Profile.profiles.item(0)
-        path = rootComp.features.createPath(spline)
-        
-        guideLine = rootComp.features.createPath(Vert_Line)
-
-# Create a sweep input
-        sweeps = rootComp.features.sweepFeatures
-        if iflag == 0:
-            sweepInput = sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-        else:
-            sweepInput = sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.CutFeatureOperation)
-        if G_Rail == 'C':
-            sweepInput.guideRail = guideLine
-        else:
-            sweepInput.guideRail = guide            #Default guide rail is the outer Helix
-        sweepInput.profileScaling = adsk.fusion.SweepProfileScalingOptions.SweepProfileScaleOption
-# Create the sweep.
-        sweep = sweeps.add(sweepInput)
-        if iflag ==0:
-            global body1
-            body1 = sweep.bodies.item(0)
-            body1.name = Body_Name                      # rename body to most of input parameters from main routine
-
 def DrawBoltHead(BoltFlat_Dia, num_sides, BoltHd_Ht):
-
-# Define the number of sides and side length of the polygon
-    #num_sides = 12                      # Change this value to set the number of sides
     Flat_OD = BoltFlat_Dia * .1         # Diameter between Flats
     Flat_Rad = Flat_OD / 2              # Rad of Flat Diamter
     Ang1 = 360.0 / (num_sides * 2)      # Amgle between a Vertex & center of a Flat
@@ -220,10 +103,9 @@ def DrawBoltHead(BoltFlat_Dia, num_sides, BoltHd_Ht):
     Ht2 = adsk.core.ValueInput.createByReal(-BoltHd_Ht * .1)
     extrudes = rootComp.features.extrudeFeatures
     ext = extrudes.addSimple(profPoly, Ht2, adsk.fusion.FeatureOperations.JoinFeatureOperation)
-    ##########################################################################
+##########################################################################
 def DrawNut(NutFlat_Dia, num_sides, NutHd_Ht, Pitch):
 # Define the number of sides and side length of the polygon
-    #num_sides = 12                      # Change this value to set the number of sides
     Flat_OD = NutFlat_Dia * .1         # Diameter between Flats
     Flat_Rad = Flat_OD / 2              # Rad of Flat Diamter
     Ang1 = 360.0 / (num_sides * 2)      # Amgle between a Vertex & center of a Flat
@@ -231,7 +113,6 @@ def DrawNut(NutFlat_Dia, num_sides, NutHd_Ht, Pitch):
     R_Ang1 = Ang1 * PI1 / 180.0         # Angle in radians
     Rad = Flat_Rad / math.cos(R_Ang1)   # Radius to a Vertex
     sketches = rootComp.sketches
-#    xyPlane = rootComp.xYConstructionPlane
 # Get the XY construction plane.
     xy_plane = create_offset_plane_from_xy
     offset_plane = create_offset_plane_from_xy(xy_plane, float(Pitch * .1))
@@ -244,13 +125,127 @@ def DrawNut(NutFlat_Dia, num_sides, NutHd_Ht, Pitch):
     Ht2 = adsk.core.ValueInput.createByReal(NutHd_Ht * .1)
     extrudes = rootComp.features.extrudeFeatures
     ext = extrudes.addSimple(profPoly, Ht2, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-    body2 = rootComp.bRepBodies.itemByName('body2')
+    #body2 = rootComp.bRepBodies.itemByName('body2')
     #body2 = extrudes.bodies.item(0)
     #body2.name = BodyNut_Name 
+##########################################################################
+def DrawCylinder(R_Min, Ht1, Pitch, iflag):
+    sketches = rootComp.sketches
+    xyPlane = rootComp.xYConstructionPlane
+    sketch_Cyl = sketches.add(xyPlane)
+    sketch_Cyl.name = "Sketch_Cylinder"
+
+# Draw a circle.
+    circles = sketch_Helix.sketchCurves.sketchCircles
+    circle1 = circles.addByCenterRadius(adsk.core.Point3D.create(0, 0, 0), R_Min)
+
+    circles1 = sketch_Cyl.sketchCurves.sketchCircles
+    circle2 = circles1.addByCenterRadius(adsk.core.Point3D.create(0, 0, 0), Rad1+.01)
+
+# Get the profile defined by the circle.
+    profCir = sketch_Helix.profiles.item(0)
+    profCir1 = sketch_Cyl.profiles.item(0)
+
+    Ht2 = adsk.core.ValueInput.createByReal(Ht1)
+    extrudes = rootComp.features.extrudeFeatures
+    if iflag == 0:
+        ext = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.JoinFeatureOperation)
+# Cut the threads that are below origin
+        Ht3 = adsk.core.ValueInput.createByReal(-((YB_B * 2) + (Pitch * 2 * .1)))
+        ext1 = extrudes.addSimple(profCir1, Ht3, adsk.fusion.FeatureOperations.CutFeatureOperation)
+# Get the XY construction plane.
+        xy_plane = create_offset_plane_from_xy
+# Create the offset plane.
+        Ht4 = float(Ht1)
+        Ht5 = adsk.core.ValueInput.createByReal(YB_T * 2 + Pitch * 2 * .1)
+        Ht6 = YB_T + 0.001 + Pitch
+        offset_plane = create_offset_plane_from_xy(xy_plane,Ht4)
+# Create sketch on the offset plane and draw a circle.
+        sketchTop = create_circle_sketch_on_plane(offset_plane, Rad1+.01)
+        profCir2 = sketchTop.profiles.item(0)
+        ext3 = extrudes.addSimple(profCir2, Ht5, adsk.fusion.FeatureOperations.CutFeatureOperation)
+    else:
+        ext = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.CutFeatureOperation)
+
+def Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag):
+    global Rad1
+    Rad1 = Rad * .1
+    ang1 = 360.0 / sPts                             # Increment angle in degrees between horizontal spline points
+    ang_R = ang1 * math.pi / 180                    # Increment angle in radians between horizontal spline points
+    if RL_thread == 'L':
+        ang_R = ang_R * -1                          # Left hand threads increment in the negative direction
+    Z_inc = Pitch1 / sPts                           # Z increment amount between spline points
+    sPts_Total = sPts                               # Number of spline points for 1 revolution of Helix
+    if G_Rail == 'L':
+        sPts_Total = sPts * rev                     # Number of spline points for Continuous Long Helix
+    Icount = 0                                      # Initalize Loop counter
+    ang = 0                                         # Set beginning angle of Helix spline poing
+    points = adsk.core.ObjectCollection.create()    # Create the points collection for the inner Helix Path
+    points1 = adsk.core.ObjectCollection.create()   # Create the points collection for the outer Helix Guide Rail
+    while (Icount <= sPts_Total):
+        x = R_Min1 * math.cos(ang)                  # Helix x, y points along inside Radius minus .1mm to connect multiple threads
+        y = R_Min1 * math.sin(ang)
+        z = Z0
+        Z0 = Z0 + Z_inc                             # Increment the Z to get to next spline Z coordinate
+        if G_Rail != 'C':
+            x1 = Rad1 * math.cos(ang)               # Helix x, y points along outside radius of thread
+            y1 = Rad1 * math.sin(ang)
+            points1.add(adsk.core.Point3D.create(x1, y1, z))     # Need 2nd spline for guide rail
+        points.add(adsk.core.Point3D.create(x, y, z))
+        ang = ang + ang_R                           # Increment angle for next coordiante in loop
+        Icount = Icount + 1                         # increment loop counter
+    spline = sketchSplines.add(points)              # Create the inner spline helix from points
+    if G_Rail != 'C':
+        spline1 = sketchSplines.add(points1)        # Create the outer spline helix from points
+        guide = rootComp.features.createPath(spline1)        
+    path = rootComp.features.createPath(spline)
+    guideLine = rootComp.features.createPath(Vert_Line)     # Guide for Centerline in case user wants that option
+# Create a sweep input
+    sweeps = rootComp.features.sweepFeatures
+    if iflag == 0:
+        sweepInput = sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+    else:
+        sweepInput = sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.CutFeatureOperation)  # For internal threads
+    if G_Rail == 'C':
+        sweepInput.guideRail = guideLine
+    else:
+        sweepInput.guideRail = guide            # Default guide rail is the outer Helix
+    sweepInput.profileScaling = adsk.fusion.SweepProfileScalingOptions.SweepProfileScaleOption
+# Create the sweep.
+    sweep = sweeps.add(sweepInput)              # This seems to be the slowest part of the code
+    if iflag ==0:
+        global body1
+        body1 = sweep.bodies.item(0)
+        body1.name = Body_Name                  # rename body to most of input parameters from main routine
+###################################################################
+def DrawHelix(Rad, Pitch, Ht, Ht1, sPts, G_Rail, RL_thread, iflag):
+    P10 = adsk.core.Point3D.create(0,0,Ht1 + .1)
+    rev = int(Ht / Pitch) + 1               # Number of revolutions, add one to it so we don't do a partial revolution
+    Pitch1 = Pitch * 0.1
+# Create an object collection for the points.
+    global sketchSplines
+    sketchSplines = sketch_Helix.sketchCurves.sketchFittedSplines
+    sketchCenter = sketch_Helix.sketchCurves.sketchLines    # used for Centerline Guide Rail, does not work as well as Helix
+    global Vert_Line
+    Vert_Line = sketchCenter.addByTwoPoints(P0,P10)         # Draw Center Vertical for Guide Rail with Sweeep
+
+    Z0 = 0.0
+    prof = sketch_Profile.profiles.item(0)
+    Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag)    # Now draw the Helix
+    #qty = 1                # Don't think we need all this code since we are only ever drawing 1 helix
+    #IDX = 0
+    #while (IDX < qty):
+        #prof = sketch_Profile.profiles.item(IDX)
+        #Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag)    # Now draw the Helix
+        #Z0 = Z0 + Pitch1
+        #IDX = IDX + 1
+    if iflag == 0:
+        body1.name = Body_Name                      # rename body to most of input parameters from main routine
 ##########################################################################
 def DrawThreads(OD, Pitch, Ht, AngT, AngB, sPts, G_Rail, RL_thread, iflag):
     try:
         Ht1 = Ht * 0.1
+        Pitch1 = Pitch * .1
         PI1 = math.pi
 # We want to use the absolute value of largest angle to use with formulas to get R_Min
         abs_angT = abs(AngT)
@@ -280,14 +275,17 @@ def DrawThreads(OD, Pitch, Ht, AngT, AngB, sPts, G_Rail, RL_thread, iflag):
         D_Min = (OD - (2 * abs(H_5H8))) * 0.1
         R_Min = D_Min / 2
         global R_Min1
-        R_Min1 = D_Min / 2 - .01                    # need just a little more inward
-                                                    # Because Helix sweep is not exact
+
+        R_Min1 = D_Min / 2 - .01    # need just a little more inward to get one profile for multiple threads
+                                                    
         global YB_B                                 # These 2 are used for cutting bottom & top of threads flush
         global YB_T
-        YB_B = (H_5H8 + H8 + .1) * B_Ang * .1       # Biggest Length closest to center
+        YB_B = (H_5H8 + H8) * B_Ang * .1       # Biggest Length closest to center
         YS_B = H8 * B_Ang * .1
-        YB_T = (H_5H8 + H8 + .1) * T_Ang * .1       # Smallest Length on Outside Diameter
+        YB_T = (H_5H8 + H8) * T_Ang * .1       # Smallest Length on Outside Diameter
         YS_T = H8 * T_Ang * .1
+        #msg = f'H_Thread = {H_Thread}<br>H8 = {H8}<br>H_5H8 = {H_5H8}<br>H3 = {H3}<br>AngB = {AngB}<br>AngT = {AngT}<br>YB_B = {YB_B}<br>YB_T = {YB_T}<br>B_Ang = {B_Ang}'
+        #ui.messageBox(msg)
 # Center of everthing is at Origin 0,0,0
         global P0
         P0 = adsk.core.Point3D.create(0,0,0)
@@ -295,29 +293,40 @@ def DrawThreads(OD, Pitch, Ht, AngT, AngB, sPts, G_Rail, RL_thread, iflag):
 # Points for Bottom Angle
 # Points P1 & P4 are the points Minimum Radius
 # Points P2 & P3 are the points on the Outside Radius
-# Points P5 & P6 are 5mm inward to fill in gap when cylinder of radius R_Min is added
-# This gap is due to the helix using spline points that are just a hair off of being cylindrical
  
 # For some reason, points for this profile below the X-Axis are Positive.  I would think they would be negative
+        X0 = R_Min1
+        X1 = R_Min
+        X2 = Rad * 0.1
+        X3 = X2
+        X4 = X1
         if AngB > 0:
-            P1 = adsk.core.Point3D.create(R_Min1, YB_B, 0)
-            P2 = adsk.core.Point3D.create(Rad * 0.1, YS_B, 0)
+            P1 = adsk.core.Point3D.create(X1, YB_B, 0)
+            P2 = adsk.core.Point3D.create(X2, YS_B, 0)
         elif AngB == 0:
-            P1 = adsk.core.Point3D.create(R_Min1, H3, 0)
-            P2 = adsk.core.Point3D.create(Rad * 0.1, H3, 0)
+            P1 = adsk.core.Point3D.create(X1, H3, 0)
+            P2 = adsk.core.Point3D.create(X2, H3, 0)
         elif AngB < 0:
-            P1 = adsk.core.Point3D.create(R_Min1, YS_B, 0)
-            P2 = adsk.core.Point3D.create(Rad * 0.1, YB_B, 0)
+            P1 = adsk.core.Point3D.create(X1, YS_B, 0)
+            P2 = adsk.core.Point3D.create(X2, YB_B, 0)
 # Points for Top Angle
         if AngT > 0:
-            P3 = adsk.core.Point3D.create(Rad * 0.1, -YS_T, 0)
-            P4 = adsk.core.Point3D.create(R_Min1, -YB_T, 0)
+            P3 = adsk.core.Point3D.create(X3, -YS_T, 0)
+            P4 = adsk.core.Point3D.create(X4, -YB_T, 0)
         elif AngT == 0:
-            P3 = adsk.core.Point3D.create(Rad * 0.1, -H3, 0)
-            P4 = adsk.core.Point3D.create(R_Min1,-H3, 0)
+            P3 = adsk.core.Point3D.create(X3, -H3, 0)
+            P4 = adsk.core.Point3D.create(X4,-H3, 0)
         elif AngT < 0:
-            P3 = adsk.core.Point3D.create(Rad * 0.1, -YB_T, 0)
-            P4 = adsk.core.Point3D.create(R_Min1, -YS_T, 0)
+            P3 = adsk.core.Point3D.create(X3, -YB_T, 0)
+            P4 = adsk.core.Point3D.create(X4, -YS_T, 0)
+        Y0 = P1.y
+        #Y1 = P1.y
+        #Y2 = P2.y
+        #Y3 = P3.y
+        Y4 = P4.y
+        Y5 = Y0 - Pitch1
+        P00 = adsk.core.Point3D.create(X0, Y0, 0)
+        P5 = adsk.core.Point3D.create(X1, Y5, 0)
 
 # Create a new 3D sketch.
         global sketch_Helix
@@ -332,16 +341,38 @@ def DrawThreads(OD, Pitch, Ht, AngT, AngB, sPts, G_Rail, RL_thread, iflag):
         sketch_Profile.name = "Thread_Profile"
 
         sketchLines = sketch_Profile.sketchCurves.sketchLines
-        sketchLines.addByTwoPoints(P1,P2)
-        sketchLines.addByTwoPoints(P2,P3)
-        sketchLines.addByTwoPoints(P3,P4)
-        sketchLines.addByTwoPoints(P4,P1)
 
+        if G_Rail== 'L':
+             points = [P00,P1, P2, P3, P4]              # Create a list of points for single thread profile
+             draw_lines_between_points(sketch_Profile, points)
+        else:
+            points = [P00,P1, P2, P3, P4, P5]           # Create a list of points to start multiple thread profiles
+            rev = int(Ht / Pitch) + 1                   # How many revolutions of helix
+            draw_lines_between_points(sketch_Profile, points)   # Draw 1st thread profile before loop
+            points = [P1, P2, P3, P4, P5]
+# Loop to change the Y coordinate of points
+            for i in range(rev):
+# on last iteration, we do not want to draw between point P4 & P5
+                if i == rev-1:
+                    points = [P1, P2, P3, P4]
+                move_points_by_y(points, Pitch * .1)                    # Move all 4 points up in Y direction Pitch amount
+                draw_lines_between_points(sketch_Profile, points)       # Draw the next thread
+        Y4 = P4.y
+        P6 = adsk.core.Point3D.create(X0, Y4, 0)                            # P6 is vertical to P00
+        sketch_Profile.sketchCurves.sketchLines.addByTwoPoints(P4, P6)      # Draw short horizontal line to be perpendicular to P00
+        sketch_Profile.sketchCurves.sketchLines.addByTwoPoints(P6, P00)     # close profile
         DrawHelix(Rad, Pitch, Ht, Ht1, sPts, G_Rail, RL_thread, iflag)
-        DrawCylinder(R_Min, Ht1, iflag)
+        DrawCylinder(R_Min, Ht1, Pitch, iflag)
     except Exception as e:
         ui.messageBox("Error: {}".format(traceback.format_exc()))
 ##########################################################################
+def move_points_by_y(points, offset):
+    for point in points:
+        point.y -= offset
+def draw_lines_between_points(sketch, points):
+    for i in range(len(points)-1):
+        sketch.sketchCurves.sketchLines.addByTwoPoints(points[i], points[i+1])
+
 def get_current_folder():
     return os.path.dirname(os.path.abspath(__file__))
 
@@ -362,7 +393,6 @@ def read_variables_from_text_file(Fname):
         variables['RL_Char'] = file.readline().strip()
     DialogName.close
     return variables
-
 
 # Executed when add-in is run.
 def start():
@@ -437,7 +467,6 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     global NutFlat_Dia
     global NutHd_Ht
     global MF_Gap
-    #BN_Check
     Fname = current_folder + '\\' + 'DialogInput_V2.txt'   #This is the Default Input file from previous entries
     if file_exists(Fname):
         DialogName = open(Fname, 'r')
@@ -464,7 +493,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
             NutFlat_Dia = csvData[12]
             NutHd_Ht = csvData[13]
             MF_Gap = csvData[14]
-            BN_Check = csvData[15]
+            BN_Check = csvData[15]          #Draw Bolt & Nut option checked Y or N
 # File does not exist, so set the defaults to these
     else:
         diameter = '6'
@@ -473,7 +502,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
         angleTop = '30'
         angleBot = '30'
         splinePts = '18'
-        GR_Char = 'C'
+        GR_Char = 'H'
         RL_Char = 'R'
  
         Bolt_Sides = '6'
@@ -487,8 +516,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 # Create a dropdown command input
     global dropDownCommandInput
     dropDownCommandInput = tab1ChildInputs.addDropDownCommandInput('MetType', 'Metric Thread Type:', adsk.core.DropDownStyles.TextListDropDownStyle);
-    # Subscribe to the dropdown change event
-    #dropdownInput0.listItemActivated.add(onDropdownChange)
+
     MFname = current_folder + '\\' + 'metric_V2.txt'        #Standard Metric sizes from M3 - M30
     global Metdata
     if file_exists(MFname):
@@ -502,8 +530,7 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
         for i in range(1,j):
             outstr= Metdata[i][0] + Metdata[i][1]+ "x" + Metdata[i][2]
             dropdown0Items.add(outstr, False, '')                       #Add this Metric size to the Dropdownlist
-# Create a value input field and set the default using 1 unit of the default length unit.
-    #tab1ChildInputs.addTextBoxCommandInput('writable_textBox', 'Text Box 2', 'This is an example of an editable text box.', 2, False)
+
     global _diameter
     global _pitch
     global _BoltFlat_Dia
@@ -526,17 +553,24 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     _NutFlat_Dia = tab2ChildInputs.addTextBoxCommandInput('NutFlat_Dia', 'Nut Flat Dia: ', NutFlat_Dia, 1, False)
     _NutHd_Ht = tab2ChildInputs.addTextBoxCommandInput('NutHd_Ht', 'Nut Height: ', NutHd_Ht, 1, False)
     tab2ChildInputs.addTextBoxCommandInput('MF_Gap', 'M/F thread Gap: ', MF_Gap, 1, False)
-    #inputs.addTextBoxCommandInput('GuideRail', 'Helix Guide Rail or Centerline Guide: ', GR_Char, 1, False)
+
 # Create dropdown input with test list style.
-    dropdownInput1 = tab1ChildInputs.addDropDownCommandInput('GuideRail', 'Helix Guide Rail or Centerline Guide:', adsk.core.DropDownStyles.TextListDropDownStyle);
+    dropdownInput1 = tab1ChildInputs.addDropDownCommandInput('GuideRail', 'Helix, Centerline or Long Helix Guide:', adsk.core.DropDownStyles.TextListDropDownStyle);
     dropdown4Items = dropdownInput1.listItems
+
 # Test what was used for the guideline on previous run
     if GR_Char == 'H':
         dropdown4Items.add('Helix', True, '')
         dropdown4Items.add('CenterLine', False, '')
-    else:
+        dropdown4Items.add('LongHelix', False, '')
+    elif GR_Char == 'C':
         dropdown4Items.add('Helix', False, '')
         dropdown4Items.add('CenterLine', True, '')
+        dropdown4Items.add('LongHelix', False, '')
+    else:
+        dropdown4Items.add('Helix', False, '')
+        dropdown4Items.add('CenterLine', False, '')
+        dropdown4Items.add('LongHelix', True, '')
     dropdownInput2 = tab1ChildInputs.addDropDownCommandInput('RightLeft', 'Right or Left Threads', adsk.core.DropDownStyles.TextListDropDownStyle);
     dropdown4Items = dropdownInput2.listItems
 # Test what was used for the Thread direction on previous run
@@ -564,7 +598,6 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
 # is immediately called after the created event not command inputs were created for the dialog.
 def command_execute(args: adsk.core.CommandEventArgs):
     # General logging for debug.
-    
     futil.log(f'{CMD_NAME} Command Execute Event')
 
 # Get a reference to your command's inputs.
@@ -611,11 +644,16 @@ def command_execute(args: adsk.core.CommandEventArgs):
     NutFlat_Dia = NutFlat_Dia.text
     NutHd_Ht = NutHd_Ht.text
     MF_Gap = MF_Gap.text
-    
+    Ht = float(height)
+# Make sure height is a positive number
+    if Ht < 0:
+        height = str(abs(Ht))
     GR_Char = 'C'
     RL_Char = 'R'
     if GuideRail == 'Helix':
         GR_Char = 'H'
+    elif GuideRail =='LongHelix':
+        GR_Char = 'L'               # This option can really bog down fusion if there are a lot of threads
     if RtLt == 'Left':
         RL_Char = 'L'
 
@@ -640,7 +678,7 @@ def command_execute(args: adsk.core.CommandEventArgs):
         DrawBoltHead(float(BoltFlat_Dia),int(Bolt_Sides),float(BoltHd_Ht))
         hide_body(body1)
         OD1 = (float(MF_Gap) * 2.0)  + OD
-        msg = f'OD: {OD}<br>OD1: {OD1}'
+        #msg = f'OD: {OD}<br>OD1: {OD1}'
         #ui.messageBox(msg)
         global BodyNut_Name
         BodyNut_Name = "M" + diameter + "_Nut"
@@ -649,8 +687,8 @@ def command_execute(args: adsk.core.CommandEventArgs):
         unhide_body(body1)
     end = time.time()
     Elapsed = round(end - start,2)
-        #msg = f'Elapsed Time: {Elapsed} seconds'
-        #ui.messageBox(msg)
+    #msg = f'Elapsed Time: {Elapsed} seconds'
+    #ui.messageBox(msg)
 def hide_body(body):
     if body.isVisible:
         body.isVisible = False
@@ -711,7 +749,6 @@ def command_validate_input(args: adsk.core.ValidateInputsEventArgs):
 
     else:
         args.areInputsValid = False
-        
 
 # This event handler is called when the command terminates.
 def command_destroy(args: adsk.core.CommandEventArgs):
