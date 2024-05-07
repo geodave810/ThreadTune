@@ -35,8 +35,12 @@ I will add the little caveats of this program as I come across them.
    
 2. If you use a different angle for the top & bottom other than 0, it will fail when using the outside helix for the guide rail.
 
-3. When creating the thread bodies, I do a join of the sweep of the thread profile & the inner cylinder.  If you have another body located where it joins it will join that one also.  I have not found a solution to that yet.
+3. When creating the thread bodies, I do a join of the sweep of the thread profile & the inner cylinder.  If you have another body located where it joins it will join that one also.  I have not gone to the trouble of hiding everything 
 
-4. You can bog the program down if your sweep of the threads is too long or has a lot of points for the spline helix.
+4. You can bog the program down if your spline helix has a lot of points for the sweep of the threads.  18 spline points should be sufficient.  If you have too many points, you might get an error dialog.
 
-5. This will probably work better in a new design for now as I have not tested this much.
+5. This will probably work better in a new design.  If you don't, just be sure to hide any objects near origin before running.
+
+6. For long threads, it will occasionally not create the inner cylinder to connect the threads.  I don't have a solution for this.
+
+7. I have locked up fusion & had to kill the process 2 or 3 times, but not since I rewrote the helix drawing method to draw just one revolution of the helix.  I left the long helix method in there, but would not recommend it.
