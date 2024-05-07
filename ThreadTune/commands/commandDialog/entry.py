@@ -39,6 +39,19 @@ app = adsk.core.Application.get()
 design = app.activeProduct
 rootComp = design.rootComponent
 ui = app.userInterface
+
+def CreateNewComponent():
+# Create a new occurrence (component).
+    #global allOccs
+    allOccs = rootComp.occurrences
+    transform = adsk.core.Matrix3D.create()
+    #global occ1
+    occ1 = allOccs.addNewComponent(transform)
+    global subComp1
+    subComp1 = occ1.component
+    subComp1.name = Body_Name
+        #global rootComp
+        #rootComp = subComp1                     #This makes it easier to transition from using the rootComponent for everything to the new Component we created
 ##########################################################################
 def draw_regular_polygon(sketch, num_sides, rad):
 # Calculate the coordinates of the polygon's vertices
@@ -49,21 +62,20 @@ def draw_regular_polygon(sketch, num_sides, rad):
         x = rad * math.cos(angle)
         y = rad * math.sin(angle)
         vertices.append(adsk.core.Point3D.create(x, y, 0))
-
 # Draw lines connecting the vertices
     lines = []
     for i in range(num_sides):
         start_point = vertices[i]
         end_point = vertices[(i + 1) % num_sides]
         lines.append(sketch.sketchCurves.sketchLines.addByTwoPoints(start_point, end_point))
-    
     return lines
 ##########################################################################
 def create_offset_plane_from_xy(construction_plane, offset_distance):
 # Get the construction planes collection.
-    planes = design.rootComponent.constructionPlanes
+    planes = subComp1.constructionPlanes
 # Get the XY construction plane.
-    xy_plane = rootComp.xYConstructionPlane
+    xy_plane = subComp1.xYConstructionPlane
+
 # Create an offset plane from the XY construction plane.
     offset_plane_input = planes.createInput()
     offset_plane_input.setByOffset(xy_plane, adsk.core.ValueInput.createByReal(offset_distance))
@@ -73,7 +85,7 @@ def create_offset_plane_from_xy(construction_plane, offset_distance):
 ##########################################################################
 def create_circle_sketch_on_plane(plane, radius):
 # Get the sketches collection of the root component.
-    sketches = design.rootComponent.sketches
+    sketches = subComp1.sketches
 
 # Create a sketch on the given plane.
     sketch = sketches.add(plane)
@@ -92,8 +104,8 @@ def DrawBoltHead(BoltFlat_Dia, num_sides, BoltHd_Ht):
     R_Ang1 = Ang1 * PI1 / 180.0         # Angle in radians
     Rad = Flat_Rad / math.cos(R_Ang1)   # Radius to a Vertex
 
-    sketches = rootComp.sketches
-    xyPlane = rootComp.xYConstructionPlane
+    sketches = subComp1.sketches
+    xyPlane = subComp1.xYConstructionPlane
     sketch_Head = sketches.add(xyPlane)
     sketch_Head.name = "sketch_Head"
 # Draw the regular polygon
@@ -101,7 +113,7 @@ def DrawBoltHead(BoltFlat_Dia, num_sides, BoltHd_Ht):
 # Get the profile defined by the Polygon.
     profPoly = sketch_Head.profiles.item(0)
     Ht2 = adsk.core.ValueInput.createByReal(-BoltHd_Ht * .1)
-    extrudes = rootComp.features.extrudeFeatures
+    extrudes = subComp1.features.extrudeFeatures
     ext = extrudes.addSimple(profPoly, Ht2, adsk.fusion.FeatureOperations.JoinFeatureOperation)
 ##########################################################################
 def DrawNut(NutFlat_Dia, num_sides, NutHd_Ht, Pitch):
@@ -112,7 +124,7 @@ def DrawNut(NutFlat_Dia, num_sides, NutHd_Ht, Pitch):
     PI1 = math.pi                       # Value of pi
     R_Ang1 = Ang1 * PI1 / 180.0         # Angle in radians
     Rad = Flat_Rad / math.cos(R_Ang1)   # Radius to a Vertex
-    sketches = rootComp.sketches
+    sketches = subComp1.sketches
 # Get the XY construction plane.
     xy_plane = create_offset_plane_from_xy
     offset_plane = create_offset_plane_from_xy(xy_plane, float(Pitch * .1))
@@ -123,15 +135,15 @@ def DrawNut(NutFlat_Dia, num_sides, NutHd_Ht, Pitch):
 # Get the profile defined by the Polygon.
     profPoly = sketch_Nut.profiles.item(0)
     Ht2 = adsk.core.ValueInput.createByReal(NutHd_Ht * .1)
-    extrudes = rootComp.features.extrudeFeatures
+    extrudes = subComp1.features.extrudeFeatures
     ext = extrudes.addSimple(profPoly, Ht2, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-    #body2 = rootComp.bRepBodies.itemByName('body2')
-    #body2 = extrudes.bodies.item(0)
-    #body2.name = BodyNut_Name 
+    global body2
+    body2 = subComp1.bRepBodies.itemByName('Body2')
+    body2.name = BodyNut_Name 
 ##########################################################################
 def DrawCylinder(R_Min, Ht1, Pitch, iflag):
-    sketches = rootComp.sketches
-    xyPlane = rootComp.xYConstructionPlane
+    sketches = subComp1.sketches
+    xyPlane = subComp1.xYConstructionPlane
     sketch_Cyl = sketches.add(xyPlane)
     sketch_Cyl.name = "Sketch_Cylinder"
 
@@ -147,11 +159,13 @@ def DrawCylinder(R_Min, Ht1, Pitch, iflag):
     profCir1 = sketch_Cyl.profiles.item(0)
 
     Ht2 = adsk.core.ValueInput.createByReal(Ht1)
-    extrudes = rootComp.features.extrudeFeatures
+    extrudes = subComp1.features.extrudeFeatures
+    
     if iflag == 0:
         ext = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.JoinFeatureOperation)
 # Cut the threads that are below origin
         Ht3 = adsk.core.ValueInput.createByReal(-((YB_B * 2) + (Pitch * 2 * .1)))
+
         ext1 = extrudes.addSimple(profCir1, Ht3, adsk.fusion.FeatureOperations.CutFeatureOperation)
 # Get the XY construction plane.
         xy_plane = create_offset_plane_from_xy
@@ -163,10 +177,10 @@ def DrawCylinder(R_Min, Ht1, Pitch, iflag):
 # Create sketch on the offset plane and draw a circle.
         sketchTop = create_circle_sketch_on_plane(offset_plane, Rad1+.01)
         profCir2 = sketchTop.profiles.item(0)
-        ext3 = extrudes.addSimple(profCir2, Ht5, adsk.fusion.FeatureOperations.CutFeatureOperation)
-    else:
-        ext = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.CutFeatureOperation)
 
+        ext_Last = extrudes.addSimple(profCir2, Ht5, adsk.fusion.FeatureOperations.CutFeatureOperation)
+    else:
+        ext_Last = extrudes.addSimple(profCir, Ht2, adsk.fusion.FeatureOperations.CutFeatureOperation)
 def Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag):
     global Rad1
     Rad1 = Rad * .1
@@ -197,11 +211,11 @@ def Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag):
     spline = sketchSplines.add(points)              # Create the inner spline helix from points
     if G_Rail != 'C':
         spline1 = sketchSplines.add(points1)        # Create the outer spline helix from points
-        guide = rootComp.features.createPath(spline1)        
-    path = rootComp.features.createPath(spline)
-    guideLine = rootComp.features.createPath(Vert_Line)     # Guide for Centerline in case user wants that option
+        guide = subComp1.features.createPath(spline1)        
+    path = subComp1.features.createPath(spline)
+    guideLine = subComp1.features.createPath(Vert_Line)     # Guide for Centerline in case user wants that option
 # Create a sweep input
-    sweeps = rootComp.features.sweepFeatures
+    sweeps = subComp1.features.sweepFeatures
     if iflag == 0:
         sweepInput = sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
     else:
@@ -232,13 +246,6 @@ def DrawHelix(Rad, Pitch, Ht, Ht1, sPts, G_Rail, RL_thread, iflag):
     Z0 = 0.0
     prof = sketch_Profile.profiles.item(0)
     Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag)    # Now draw the Helix
-    #qty = 1                # Don't think we need all this code since we are only ever drawing 1 helix
-    #IDX = 0
-    #while (IDX < qty):
-        #prof = sketch_Profile.profiles.item(IDX)
-        #Draw_1_Helix(rev, Rad, Pitch1, sPts, Z0, G_Rail, prof, RL_thread, iflag)    # Now draw the Helix
-        #Z0 = Z0 + Pitch1
-        #IDX = IDX + 1
     if iflag == 0:
         body1.name = Body_Name                      # rename body to most of input parameters from main routine
 ##########################################################################
@@ -320,24 +327,21 @@ def DrawThreads(OD, Pitch, Ht, AngT, AngB, sPts, G_Rail, RL_thread, iflag):
             P3 = adsk.core.Point3D.create(X3, -YB_T, 0)
             P4 = adsk.core.Point3D.create(X4, -YS_T, 0)
         Y0 = P1.y
-        #Y1 = P1.y
-        #Y2 = P2.y
-        #Y3 = P3.y
-        Y4 = P4.y
+        #Y4 = P4.y
         Y5 = Y0 - Pitch1
         P00 = adsk.core.Point3D.create(X0, Y0, 0)
         P5 = adsk.core.Point3D.create(X1, Y5, 0)
 
 # Create a new 3D sketch.
         global sketch_Helix
-        sketches = rootComp.sketches
-        xyPlane = rootComp.xYConstructionPlane
+        sketches = subComp1.sketches
+        xyPlane = subComp1.xYConstructionPlane
         sketch_Helix = sketches.add(xyPlane)
         sketch_Helix.name = "Sketch_Helix"
 
 # Create sketch for the profile to sweep
         global sketch_Profile
-        sketch_Profile = sketches.add(rootComp.xZConstructionPlane)
+        sketch_Profile = sketches.add(subComp1.xZConstructionPlane)
         sketch_Profile.name = "Thread_Profile"
 
         sketchLines = sketch_Profile.sketchCurves.sketchLines
@@ -671,20 +675,29 @@ def command_execute(args: adsk.core.CommandEventArgs):
     start = time.time()
     OD = float(diameter)
     Pit = float(pitch)
+
+# Create New Component for all this geometry to start with
+    Tstart = design.timeline.markerPosition
+    CreateNewComponent()
     DrawThreads(OD, Pit, float(height), float(angleTop), float(angleBot), sPts, GR_Char, RL_Char, 0)
+
     if BoltNutYesNo == 1:
         NH_Ht = float(NutHd_Ht)
         Nt_Thread_Ht = NH_Ht + Pit + Pit
         DrawBoltHead(float(BoltFlat_Dia),int(Bolt_Sides),float(BoltHd_Ht))
         hide_body(body1)
         OD1 = (float(MF_Gap) * 2.0)  + OD
-        #msg = f'OD: {OD}<br>OD1: {OD1}'
-        #ui.messageBox(msg)
         global BodyNut_Name
         BodyNut_Name = "M" + diameter + "_Nut"
         DrawNut(float(NutFlat_Dia), int(Nut_Sides), float(NutHd_Ht),float(pitch))
         DrawThreads(OD1, Pit, Nt_Thread_Ht, float(angleTop), float(angleBot), sPts, GR_Char, RL_Char, 1)
         unhide_body(body1)
+
+# Group everything used to create the gear in the timeline.
+    timelineGroups = design.timeline.timelineGroups
+    TLend = design.timeline.markerPosition - 1
+    timelineGroup = timelineGroups.add(Tstart, TLend)
+
     end = time.time()
     Elapsed = round(end - start,2)
     #msg = f'Elapsed Time: {Elapsed} seconds'
@@ -709,11 +722,9 @@ def command_preview(args: adsk.core.CommandEventArgs):
 def command_input_changed(args: adsk.core.InputChangedEventArgs):
     changed_input = args.input
     if args.input.id == 'MetType':
-        #Met_Item = dropDownCommandInput.selectedItem.name
         Met_ID = dropDownCommandInput.selectedItem.index
         Met_ID = Met_ID + 1
-        #msg = f'Met_ID = {Met_ID}'
-        #ui.messageBox(msg)
+
         diameter = Metdata[Met_ID][1]
         pitch = Metdata[Met_ID][2]
         BoltFlat_Dia = Metdata[Met_ID][3]
